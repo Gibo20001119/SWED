@@ -3,25 +3,24 @@ package de.gabriel.monitor.main;
 import de.gabriel.monitor.controller.WebsiteMonitor;
 import de.gabriel.monitor.model.User;
 import de.gabriel.monitor.model.Website;
-import de.gabriel.monitor.service.Notification;
+import de.gabriel.monitor.service.*;
 
 public class Main {
     public static void main(String[] args) {
-        WebsiteMonitor monitor = new WebsiteMonitor(); // Create an instance of the WebsiteMonitor class
-        
-        // Create users
-        monitor.createUser("Alice", 1, "alice@test.com");
-        User bob = new User("Bob", 2, "bob@test.com");
-        Website google = new Website("https://www.google.com");
+        WebsiteMonitor monitor = new WebsiteMonitor();
+        User alice = new User("Alice", 1, "alice@test.com");
+        Website google = new Website("https://google.com");
 
-        monitor.createSubscription("daily", "email", bob, google);
+        monitor.createSubscription("day", "Email", alice, google);
+        monitor.addObserver(new Notification(alice));
 
-        Notification bobNotification = new Notification(bob);
-        monitor.addObserver(bobNotification); // Register Bob's notification as an observer
+        // 1: Standard (HTML-comparison)
+        System.out.println("--- Test with HTML ---");
+        monitor.runPeriodicCheck();
 
-        monitor.runPeriodicCheck(); // Run the periodic check to see if there are any updates on the subscribed websites
-
-        System.out.println("Nutzer erstellt!");
-        System.out.println("Projekt läuft erfolgreich!");
+        // 2: change to TextValue
+        System.out.println("\n--- Change to SizeValue ---");
+        google.setComparisonStrategy(new ContentSizeStrategy());
+        monitor.runPeriodicCheck();
     }
 }

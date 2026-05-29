@@ -1,50 +1,35 @@
 package de.gabriel.monitor.model;
 
-import java.util.Date;
-import java.lang.String;
+import de.gabriel.monitor.service.ComparisonStrategy;
+import de.gabriel.monitor.service.HtmlContentStrategy; // Default
 
 public class Website {
     private String url;
-    private Date lastExaminationDate;
-    private String lastContent;
+    private String lastContent = "";
+    private ComparisonStrategy comparisonStrategy; // Strategy-Referenz
 
-    // Constructor to initialize the website with its URL
     public Website(String url) {
         this.url = url;
-        this.lastExaminationDate = new Date();
-        this.lastContent = "";
-
+        this.comparisonStrategy = new HtmlContentStrategy(); // Strategy-pattern
     }
 
-    // Simulate fetching content from the website
+    public String getUrl() { return url; }
+
+    // New: Setter for the strategy, allowing dynamic changes at runtime
+    public void setComparisonStrategy(ComparisonStrategy strategy) {
+        this.comparisonStrategy = strategy;
+    }
+
     public String fetchCurrentContent() {
-        // Simulate fetching content from the website
-        return "Current content of " + url + " at " + new Date();
+        return "<html><body>Example Content</body></html>";
     }
 
-    // Check if the content has changed since the last examination
-    public boolean hasChanged(){
-        // get the latest content (previous implementation used an undefined variable newContent)
-        String newContent = fetchCurrentContent();
-        boolean changed = !this.lastContent.equals(newContent);
-        if(changed){
+    // the method that checks for changes using the strategy
+    public boolean hasChanged(String newContent) {
+        boolean changed = comparisonStrategy.hasChanged(this.lastContent, newContent);
+        if (changed) {
             this.lastContent = newContent;
-            this.lastExaminationDate = new Date();
         }
         return changed;
-    }
-
-    // Overload: allow callers to provide the fetched content to avoid double-fetching
-    public boolean hasChanged(String newContent){
-        boolean changed = !this.lastContent.equals(newContent);
-        if(changed){
-            this.lastContent = newContent;
-            this.lastExaminationDate = new Date();
-        }
-        return changed;
-    }
-
-    public String getUrl() {
-        return url;
     }
 }
